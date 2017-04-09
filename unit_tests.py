@@ -1,8 +1,11 @@
 import ID3, parse, random
 
 def testID3AndEvaluate():
-  data = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1),dict(a=0, b=1, Class=0),dict(a=0, b=0, Class=1)]
+  data = [dict(a=1, b=0, Class='i'), dict(a=1, b=1, Class='i'),dict(a=0, b=1, Class='j'),dict(a=0, b=0, Class='i')]
   tree = ID3.ID3(data, 0)
+  print tree.get_label()
+  print tree.get_children()
+  print tree.get_direction()
   if tree != None:  
     ans = ID3.evaluate(tree, dict(a=1, b=0))
     if ans != 1:

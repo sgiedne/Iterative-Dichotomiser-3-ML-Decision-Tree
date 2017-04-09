@@ -86,9 +86,9 @@ def evaluate(node, example):
     return node
 
   val = example[node.label]
-  direcion = root.get_direction()
-  children = root.get_children()
-  if val == direcion[1]:
+  direction = node.get_direction()
+  children = node.get_children()
+  if val == direction[1]:
     evaluate(children[1],example)
   else:
     evaluate(children[2],example)
@@ -105,14 +105,14 @@ def find_mode(examples):
   class_ = []
   for row in examples:
     class_.append(row['Class'])
-  return mode(class_)
+  return mode(class_)[0][0]
 
 #Returns the two possible values of a given attribute in example set (higher frequency attribute first)
 def find_mode_attrib(examples,att):
   attrib = []
   for row in examples:
     attrib.append(row[att])
-  val1 = mode(attrib)
+  val1 = mode(attrib)[0][0]
   val2 = ''
   for val in attrib:
     if val == val1:
@@ -131,7 +131,7 @@ def choose_attribute(examples):
   
   #info_gain is a dictionary to hold information gain for each attribute {attrib: IG,..}
   info_gain = {}
-  attributes = examples.keys()
+  attributes = examples[0].keys()
   
   #Go through all attributes to decide the one with higherst info gain
   for att in attributes:
@@ -157,19 +157,26 @@ def choose_attribute(examples):
     if(len(split1) >= len(split2)):
       for row in missing:
         row[att] = attrib_val1
-      split1.append(missing)
+        split1.append(row)
     else:
       for row in missing:
         row[att] = attrib_val2
-      split2.append(missing)
+        split2.append(row)
 
     #Calculate the weight of each split
     w1 = len(split1)/len(examples)
     w2 = len(split2)/len(examples)
 
-    #Calculate entropy of each split
-    entropy_split1 = w1 * cal_entropy(split1)
-    entropy_split2 = w2 * cal_entropy(split2)
+    #Calculate entropy of each split; 0 if split has no examples
+    if len(split1) == 0:
+      entropy_split1 = 0
+    else:
+      entropy_split1 = w1 * cal_entropy(split1)
+
+    if len(split2) == 0:
+      entropy_split2 = 0
+    else:
+      entropy_split2 = w2 * cal_entropy(split2)
 
     #Calcualte total information gain
     ig = cur_entropy - entropy_split1 - entropy_split2
@@ -203,10 +210,12 @@ def cal_entropy(examples):
     if row['Class'] == mode_examples:
       mode_len+=1
   inv_mode_len = len(examples) - mode_len
+  if inv_mode_len == 0:
+    return 0
+  x = float(mode_len)/float(len(examples))
+  y = float(inv_mode_len)/float(len(examples))
 
-  x = mode_len/len(examples)
-  y = inv_mode_len/len(examples)
-  return (-1 * ( (x * (math.log(x,2))) + (y * (math.log(y,2))) ) )
+  return (-1 * ( (x * (math.log(x))) + (y * (math.log(y))) ) )
 
 
 # WHICH SIDE SHOULD THE TREE BE TRAVERSED IN?
