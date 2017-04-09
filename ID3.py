@@ -29,13 +29,11 @@ def ID3(examples, default):
     return beg_class
 
   #Third terminating condition
-  beg_attrib = examples[0]
-  del beg_attrib['Class']
+  beg_attrib = remove_class(examples[0])
   same_attrib = True
 
   for row in examples:
-    dict_row = row
-    del dict_row['Class']
+    dict_row = remove_class(row)
 
     if beg_attrib != dict_row:
       same_attrib = False
@@ -96,6 +94,10 @@ def evaluate(node, example):
     evaluate(children[2],example)
 
 
+def remove_class(d):
+  r = dict(d)
+  del r['Class']
+  return r
 
 
 #Returns the mode of the Class present in all the given examples
