@@ -50,6 +50,11 @@ def ID3(examples, default):
   split1 = split_result[1]
   split2 = split_result[2]
 
+  #Adding direction to root
+  root.direction[1] = split_result[3]
+  root.direction[2] = split_result[4]
+
+
   root.label = split_attribute
   child1 = Node()
   child2 = Node()
@@ -82,10 +87,13 @@ def evaluate(node, example):
   if not isinstance(node,Node):
     return node
 
-  # example_attributes = example.keys()
-
-  # while node.label != None:
-  #   val = example[node.label]
+  val = example[node.label]
+  direcion = root.get_direction()
+  children = root.get_children()
+  if val == direcion[1]:
+    evaluate(children[1],example)
+  else:
+    evaluate(children[2],example)
 
 
 
