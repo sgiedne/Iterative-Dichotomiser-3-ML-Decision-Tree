@@ -43,6 +43,7 @@ def ID3(examples, default):
     return find_mode(examples)
 
   #Choosing best attribute to split on
+  
   split_result = choose_attribute(examples)
   split_attribute = split_result[0]
   split1 = split_result[1]
@@ -89,10 +90,11 @@ def evaluate(node, example):
   direction = node.get_direction()
   children = node.get_children()
   if val == direction[1]:
-    evaluate(children[1],example)
+    result = evaluate(children[1],example)
   else:
-    evaluate(children[2],example)
+    result = evaluate(children[2],example)
 
+  return result
 
 def remove_class(d):
   r = dict(d)
@@ -103,6 +105,7 @@ def remove_class(d):
 #Returns the mode of the Class present in all the given examples
 def find_mode(examples):
   class_ = []
+
   for row in examples:
     class_.append(row['Class'])
   return mode(class_)[0][0]
@@ -132,13 +135,13 @@ def choose_attribute(examples):
   #info_gain is a dictionary to hold information gain for each attribute {attrib: IG,..}
   info_gain = {}
   attributes = examples[0].keys()
-  
   #Go through all attributes to decide the one with higherst info gain
   for att in attributes:
+    if att == 'Class':
+     continue
     split1 = []
     split2 = []
     missing = []
-    
     #Find the two values of given attribute
     attrib_values = find_mode_attrib(examples,att)
     attrib_val1 = attrib_values[0]
@@ -152,7 +155,7 @@ def choose_attribute(examples):
         split2.append(row)
       else:
         missing.append(row)
-    
+        
     #Find the most common occurrence of missing attribute in the split and assign the missing attrbute the common value
     if(len(split1) >= len(split2)):
       for row in missing:
@@ -164,24 +167,22 @@ def choose_attribute(examples):
         split2.append(row)
 
     #Calculate the weight of each split
-    w1 = len(split1)/len(examples)
-    w2 = len(split2)/len(examples)
+    w1 = float(len(split1))/float(len(examples))
+    w2 = float(len(split2))/float(len(examples))
 
-    #Calculate entropy of each split; 0 if split has no examples
-    if len(split1) == 0:
-      entropy_split1 = 0
+    #Calculate entropy of each split
+    if(len(split1) == 0):
+        entropy_split1 = 0;
     else:
-      entropy_split1 = w1 * cal_entropy(split1)
-
-    if len(split2) == 0:
-      entropy_split2 = 0
+        entropy_split1 = w1 * cal_entropy(split1)
+    if(len(split2) == 0):
+        entropy_split2 = 0;
     else:
-      entropy_split2 = w2 * cal_entropy(split2)
-
+        entropy_split2 = w2 * cal_entropy(split2)
     #Calcualte total information gain
     ig = cur_entropy - entropy_split1 - entropy_split2
     info_gain[att] = ig
-
+    
   #Find the attribute with highest information gain
   highestIG_attrib = ''
   highestIG = 0
@@ -189,11 +190,21 @@ def choose_attribute(examples):
     if info_gain[item] > highestIG:
       highestIG = info_gain[item]
       highestIG_attrib = item
-  
+        
   #Find the (two) possible values of chosen attribute
   attrib_values = find_mode_attrib(examples,highestIG_attrib)
   attrib_val1 = attrib_values[0]
   attrib_val2 = attrib_values[1]
+    
+  #Creating the split again on the basis of highestIG_attrib
+  #Split the examples into three sets - split1, split2 and missing
+  split1 = []
+  split2 = []
+  for row in examples:
+    if row[highestIG_attrib] == attrib_val1:
+      split1.append(row)
+    elif row[highestIG_attrib] == attrib_val2:
+      split2.append(row)
 
   #Returning Chosen Attribute, First subset of examples, Second subset of examples, Attribute value1, Attribute value2 
   return highestIG_attrib,split1,split2,attrib_val1,attrib_val2
@@ -210,12 +221,13 @@ def cal_entropy(examples):
     if row['Class'] == mode_examples:
       mode_len+=1
   inv_mode_len = len(examples) - mode_len
+
   if inv_mode_len == 0:
     return 0
+  
   x = float(mode_len)/float(len(examples))
   y = float(inv_mode_len)/float(len(examples))
-
-  return (-1 * ( (x * (math.log(x))) + (y * (math.log(y))) ) )
+  return (-1 * ( (x * (math.log(x,2))) + (y * (math.log(y,2))) ) )
 
 
 # WHICH SIDE SHOULD THE TREE BE TRAVERSED IN?
