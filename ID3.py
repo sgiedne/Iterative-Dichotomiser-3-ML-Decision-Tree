@@ -63,11 +63,22 @@ def prune(node, examples):
   to improve accuracy on the validation data; the precise pruning strategy is up to you.
   '''
 
+    
+
 def test(node, examples):
   '''
   Takes in a trained tree and a test set of examples.  Returns the accuracy (fraction
   of examples the tree classifies correctly).
   '''
+  correctly_classified = 0
+  for example in examples:
+    if evaluate(node,example) == example['Class']:
+      correctly_classified+=1
+  accuracy = float(correctly_classified)/float(len(examples))
+  return accuracy
+
+
+
 
 def evaluate(node, example):
   '''

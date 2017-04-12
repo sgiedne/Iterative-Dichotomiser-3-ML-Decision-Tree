@@ -4,11 +4,7 @@ class Node:
 		self.children = {}
 		# you may want to add additional fields here...
 		self.direction = {}
-
-		self.democrats = 0
-		self.republicans = 0
-		self.mode = None
-		self.examples = []
+		self.visited = False
 
 	def get_label(self):
 		return self.label
@@ -18,3 +14,6 @@ class Node:
 
 	def get_direction(self):
 		return self.direction
+
+	def get_visited(self):
+		return self.visited
