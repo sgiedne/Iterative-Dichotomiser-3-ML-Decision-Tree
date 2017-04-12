@@ -1,14 +1,22 @@
 import ID3, parse, random
 
 def testID3AndEvaluate():
-  data = [dict(a=1, b=0, Class='i'), dict(a=1, b=1, Class='i'),dict(a=0, b=1, Class='j'),dict(a=0, b=0, Class='i')]
+  data = [dict(a=0, b=1, c=0, Class='i'),
+  dict(a=0, b=1, c=1, Class='i'),
+  dict(a=0, b=1, c=2, Class='i'),
+  dict(a=1, b=0, c=2, Class='j'),
+  dict(a=1, b=1, c=2, Class='j'),
+  dict(a=1, b=2, c=2, Class='j'),
+  dict(a=0, b=2, c=1, Class='i'),
+  dict(a=1, b=2, c=1, Class='i'),
+  dict(a=2, b=2, c=1, Class='i'),
+  dict(a=0, b=0, c=0, Class='i'),
+  dict(a=1, b=1, c=1, Class='i'),
+  dict(a=2, b=2, c=2, Class='i')]
   tree = ID3.ID3(data, 0)
-  print tree.get_label()
-  print tree.get_children()
-  print tree.get_direction()
   if tree != None:  
-    ans = ID3.evaluate(tree, dict(a=1, b=0))
-    if ans != 1:
+    ans = ID3.evaluate(tree, dict(a=1, b=2, c=2))
+    if ans != 'j':
       print "ID3 test failed."
     else:
       print "ID3 test succeeded."

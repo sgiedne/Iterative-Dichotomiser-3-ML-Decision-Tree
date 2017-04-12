@@ -4,6 +4,7 @@ class Node:
 		self.children = {}
 		# you may want to add additional fields here...
 		self.direction = {}
+
 		self.democrats = 0
 		self.republicans = 0
 		self.mode = None
