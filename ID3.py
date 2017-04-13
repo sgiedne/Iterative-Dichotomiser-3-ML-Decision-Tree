@@ -51,9 +51,12 @@ def ID3(examples, default):
     root.direction[split_result[2][i-1]] = i
     child = Node()
     child = ID3(split_result[1][i-1],find_mode(examples))
+    if isinstance(child,Node):
+      child.parent = root
     root.children[i] = child
 
   root.label = split_attribute
+  root.modeClass = find_mode(examples)
 
   return root
 
@@ -62,6 +65,31 @@ def prune(node, examples):
   Takes in a trained tree and a validation set of examples.  Prunes nodes in order
   to improve accuracy on the validation data; the precise pruning strategy is up to you.
   '''
+  cur_accuracy = test(node,examples)
+  traversal = list(reversed(preOrder(node)))
+
+  for n in traversal:
+    if n == node:
+      continue
+    label = n.get_label()
+    parent = n.get_parent()
+    mode_class = n.get_modeClass()
+    parent_children = parent.get_children()
+
+    child_ref = None
+    for child in parent_children:
+      if isinstance(parent_children[child],Node):
+        if parent_children[child].get_label() == label:
+          child_ref = child
+          parent_children[child] = mode_class
+          break
+
+    new_accuracy = test(node,examples)
+
+    if new_accuracy < cur_accuracy:
+      parent_children[child_ref] = n
+
+  return node
 
     
 
@@ -78,13 +106,27 @@ def test(node, examples):
   return accuracy
 
 
-
+def preOrder(node):
+  traversal = []
+  stack = [node]
+  while stack:
+    if isinstance(stack[len(stack)-1], Node):
+      temp = stack.pop()
+      if temp not in traversal:
+        traversal.append(temp)
+        children = temp.get_children().values()
+        children = list(reversed(children))
+        stack += children
+    else:
+      stack.pop() 
+  return traversal
 
 def evaluate(node, example):
   '''
   Takes in a tree and one example.  Returns the Class value that the tree
   assigns to the example.
   '''
+  result = None
   if not isinstance(node,Node):
     return node
 
@@ -123,10 +165,10 @@ def find_unique_attributeValues(examples,att):
   for ex in examples:
     if ex[att]!= '?':
       values.add(ex[att])
-  freq_value = mode(values)[0][0]
+  freq_value = mode(list(values))[0][0]
   for ex in examples:
     if ex[att] == '?':
-      ex[att] = frequency
+      ex[att] = freq_value
   return values
 
 
@@ -168,9 +210,11 @@ def choose_attribute(examples):
     info_gain[att] = ig
     
   #Find the attribute with highest information gain
-  highestIG_attrib = ''
+  highestIG_attrib = None
   highestIG = 0
   for item in info_gain:
+    if highestIG_attrib == None:
+      highestIG_attrib = item
     if info_gain[item] > highestIG:
       highestIG = info_gain[item]
       highestIG_attrib = item

@@ -4,7 +4,8 @@ class Node:
 		self.children = {}
 		# you may want to add additional fields here...
 		self.direction = {}
-		self.visited = False
+		self.parent = None
+		self.modeClass = None
 
 	def get_label(self):
 		return self.label
@@ -15,5 +16,8 @@ class Node:
 	def get_direction(self):
 		return self.direction
 
-	def get_visited(self):
-		return self.visited
+	def get_parent(self):
+		return self.parent
+
+	def get_modeClass(self):
+		return self.modeClass

@@ -1,4 +1,6 @@
 import ID3, parse, random
+from node import Node
+from ID3 import preOrder
 
 def testID3AndEvaluate():
   data = [dict(a=0, b=1, c=0, Class='i'),
@@ -100,4 +102,7 @@ def testPruningOnHouseData(inFile):
   print "average with pruning",sum(withPruning)/len(withPruning)," without: ",sum(withoutPruning)/len(withoutPruning)
   
 
-testID3AndTest()
+# testID3AndTest()
+# testID3AndEvaluate()
+# testPruning()
+testPruningOnHouseData('./house_votes_84.data')
