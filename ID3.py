@@ -57,7 +57,6 @@ def ID3(examples, default):
     root.direction[split_result[2][i-1]] = i
     child = Node()
     child = ID3(split_result[1][i-1],find_mode(examples))
-    child.parent = root
     root.children[i] = child
 
   root.label = split_attribute

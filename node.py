@@ -4,7 +4,6 @@ class Node:
 		self.children = {}
 		# you may want to add additional fields here...
 		self.direction = {}
-		self.parent = None
 		self.modeClass = None
 		self.classString = None
 	def get_label(self):
