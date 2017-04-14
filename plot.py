@@ -76,7 +76,7 @@ def testPruningOnHouseData(inFile):
   with_pruning_Y = []
   without_pruning_X = []
   without_pruning_Y = []
-  for i in np.arange(10,300,10):
+  for i in np.arange(10,301,10):
     print i
     withPruning = []
     withoutPruning = []
