@@ -1,7 +1,6 @@
 import ID3, parse, random
 from node import Node
 from ID3 import preOrder
-import _ctypes
 
 def testID3AndEvaluate():
   data = [dict(a=0, b=1, c=0, Class='i'),
@@ -27,8 +26,8 @@ def testID3AndEvaluate():
     print "ID3 test failed -- no tree returned"
 
 def testPruning():
-  data = [dict(a=1, b=0, Class=0), dict(a=1, b=1, Class=0), dict(a=0, b=1, Class=1)]
-  validationData = [dict(a=1, b=0, Class=0), dict(a=1, b=1, Class=0), dict(a=0, b=0, Class=0), dict(a=0, b=0, Class=0)]
+  data = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1), dict(a=0, b=1, Class=0), dict(a=0, b=0, Class=1)]
+  validationData = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1), dict(a=0, b=0, Class=0), dict(a=0, b=0, Class=0)]
   tree = ID3.ID3(data, 0)
   ID3.prune(tree, validationData)
   if tree != None:
@@ -101,3 +100,9 @@ def testPruningOnHouseData(inFile):
   print withPruning
   print withoutPruning
   print "average with pruning",sum(withPruning)/len(withPruning)," without: ",sum(withoutPruning)/len(withoutPruning)
+  
+
+# testID3AndTest()
+# testID3AndEvaluate()
+# testPruning()
+testPruningOnHouseData('./house_votes_84.data')

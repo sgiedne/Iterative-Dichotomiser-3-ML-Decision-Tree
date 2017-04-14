@@ -6,7 +6,7 @@ class Node:
 		self.direction = {}
 		self.parent = None
 		self.modeClass = None
-		self.classString = None
+
 	def get_label(self):
 		return self.label
 
@@ -21,6 +21,3 @@ class Node:
 
 	def get_modeClass(self):
 		return self.modeClass
-
-	def get_classString(self):
-		return self.classString

@@ -13,9 +13,7 @@ def ID3(examples, default):
 
   #First terminating condition
   if not examples:
-    temp = Node()
-    temp.classString = default
-    return temp
+    return default
   
   root = Node()
   #Second terminating condition
@@ -28,9 +26,7 @@ def ID3(examples, default):
       break
 
   if same_class == True:
-    temp = Node()
-    temp.classString = beg_class
-    return temp
+    return beg_class
 
   #Third terminating condition
   beg_attrib = remove_class(examples[0])
@@ -44,9 +40,7 @@ def ID3(examples, default):
       break
 
   if beg_attrib == True:
-    temp = Node()
-    temp.classString = find_mode(examples)
-    return temp
+    return find_mode(examples)
 
   #Choosing best attribute to split on
   split_result = choose_attribute(examples)
@@ -57,8 +51,8 @@ def ID3(examples, default):
     root.direction[split_result[2][i-1]] = i
     child = Node()
     child = ID3(split_result[1][i-1],find_mode(examples))
-    # if (child.get_classString() is None):
-    child.parent = root
+    if isinstance(child,Node):
+      child.parent = root
     root.children[i] = child
 
   root.label = split_attribute
@@ -73,21 +67,28 @@ def prune(node, examples):
   '''
   cur_accuracy = test(node,examples)
   traversal = list(reversed(preOrder(node)))
-  
+
   for n in traversal:
     if n == node:
-      mode_class = n.get_modeClass()
-      n.classString = mode_class
-      new_accuracy = test(n,examples)
-      if new_accuracy <= cur_accuracy:
-        n.classString = None
-      return node
+      continue
+    label = n.get_label()
+    parent = n.get_parent()
+    mode_class = n.get_modeClass()
+    parent_children = parent.get_children()
 
-    n.classString = n.get_modeClass()
+    child_ref = None
+    for child in parent_children:
+      if isinstance(parent_children[child],Node):
+        if parent_children[child].get_label() == label:
+          child_ref = child
+          parent_children[child] = mode_class
+          break
+
     new_accuracy = test(node,examples)
-    if new_accuracy <= cur_accuracy:
-      n.classString = None
-  
+
+    if new_accuracy < cur_accuracy:
+      parent_children[child_ref] = n
+
   return node
 
     
@@ -109,7 +110,7 @@ def preOrder(node):
   traversal = []
   stack = [node]
   while stack:
-    if (stack[len(stack)-1].get_classString() is None):
+    if isinstance(stack[len(stack)-1], Node):
       temp = stack.pop()
       if temp not in traversal:
         traversal.append(temp)
@@ -125,9 +126,14 @@ def evaluate(node, example):
   Takes in a tree and one example.  Returns the Class value that the tree
   assigns to the example.
   '''
-  result = ''
-  if not (node.get_classString() is None):
-    return node.get_classString()
+  result = None
+  if not isinstance(node,Node):
+    return node
+
+  val = example[node.label]
+
+  direction = node.get_direction()
+  children = node.get_children()
   
   #Get the correct direction and traverse the tree according to the example attribute values
   val = example[node.label]
