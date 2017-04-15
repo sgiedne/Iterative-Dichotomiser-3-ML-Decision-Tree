@@ -85,6 +85,8 @@ def prune(node, examples):
     new_accuracy = test(node,examples)
     if new_accuracy <= cur_accuracy:
       n.classString = None
+    else:
+      cur_accuracy = new_accuracy
   
   return node
 
