@@ -2,6 +2,8 @@ import ID3, parse, random
 from node import Node
 from ID3 import preOrder
 import _ctypes
+import matplotlib.pyplot as plt
+import numpy as np
 
 def testID3AndEvaluate():
   data = [dict(a=0, b=1, c=0, Class='i'),
@@ -27,8 +29,8 @@ def testID3AndEvaluate():
     print "ID3 test failed -- no tree returned"
 
 def testPruning():
-  data = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1), dict(a=0, b=1, Class=0), dict(a=0, b=0, Class=1)]
-  validationData = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1), dict(a=0, b=0, Class=0), dict(a=0, b=0, Class=0)]
+  data = [dict(a=1, b=0, Class=0), dict(a=1, b=1, Class=0), dict(a=0, b=1, Class=1)]
+  validationData = [dict(a=1, b=0, Class=0), dict(a=1, b=1, Class=0), dict(a=0, b=0, Class=0), dict(a=0, b=0, Class=0)]
   tree = ID3.ID3(data, 0)
   ID3.prune(tree, validationData)
   if tree != None:
@@ -69,35 +71,63 @@ def testID3AndTest():
 
 # inFile - string location of the house data file
 def testPruningOnHouseData(inFile):
-  withPruning = []
-  withoutPruning = []
   data = parse.parse(inFile)
-  for i in range(100):
-    random.shuffle(data)
-    train = data[:len(data)/2]
-    valid = data[len(data)/2:3*len(data)/4]
-    test = data[3*len(data)/4:]
-  
-    tree = ID3.ID3(train, 'democrat')
-    acc = ID3.test(tree, train)
-    print "training accuracy: ",acc
-    acc = ID3.test(tree, valid)
-    print "validation accuracy: ",acc
-    acc = ID3.test(tree, test)
-    print "test accuracy: ",acc
-  
-    ID3.prune(tree, valid)
-    acc = ID3.test(tree, train)
-    print "pruned tree train accuracy: ",acc
-    acc = ID3.test(tree, valid)
-    print "pruned tree validation accuracy: ",acc
-    acc = ID3.test(tree, test)
-    print "pruned tree test accuracy: ",acc
-    withPruning.append(acc)
-    tree = ID3.ID3(train+valid, 'democrat')
-    acc = ID3.test(tree, test)
-    print "no pruning test accuracy: ",acc
-    withoutPruning.append(acc)
-  print withPruning
-  print withoutPruning
-  print "average with pruning",sum(withPruning)/len(withPruning)," without: ",sum(withoutPruning)/len(withoutPruning)
+  with_pruning_X = []
+  with_pruning_Y = []
+  without_pruning_X = []
+  without_pruning_Y = []
+  for i in np.arange(10,300,10):
+    print i
+    withPruning = []
+    withoutPruning = []
+    r = i*0.8
+    r = int(r)
+    print r
+
+    for j in range(100):
+      random.shuffle(data)
+      train = data[:r]
+      valid = data[r:i]
+      test = data[i:]
+
+      print len(train)
+
+
+      tree = ID3.ID3(train, 'democrat')
+      acc = ID3.test(tree, train)
+      print "training accuracy: ",acc
+      acc = ID3.test(tree, valid)
+      print "validation accuracy: ",acc
+      acc = ID3.test(tree, test)
+      print "test accuracy: ",acc
+
+      ID3.prune(tree, valid)
+      acc = ID3.test(tree, train)
+      print "pruned tree train accuracy: ",acc
+      acc = ID3.test(tree, valid)
+      print "pruned tree validation accuracy: ",acc
+      acc = ID3.test(tree, test)
+      print "pruned tree test accuracy: ",acc
+      withPruning.append(acc)
+      tree = ID3.ID3(train+valid, 'democrat')
+      acc = ID3.test(tree, test)
+      print "no pruning test accuracy: ",acc
+      withoutPruning.append(acc)
+
+    print withPruning
+    print withoutPruning
+    with_pruning_Y.append(sum(withPruning)/len(withPruning))
+    with_pruning_X.append(i)
+    without_pruning_Y.append(sum(withoutPruning)/len(withoutPruning))
+    without_pruning_X.append(i)
+    print "average with pruning",sum(withPruning)/len(withPruning)," without: ",sum(withoutPruning)/len(withoutPruning)
+
+  plt.title('Training curve with and without pruning')
+  plt.plot(without_pruning_X, without_pruning_Y, label="without pruning")
+  plt.xlabel('Number of training examples')
+  plt.plot(with_pruning_X, with_pruning_Y, label="with pruning")
+  plt.ylabel('Accuracy on testing set')
+  plt.legend()
+  plt.show()
+
+testPruningOnHouseData('house_votes_84.data')
